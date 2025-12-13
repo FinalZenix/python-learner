@@ -22,6 +22,11 @@ const App: React.FC = () => {
   const [currentLessonId, setCurrentLessonId] = useState(content.core[0].id);
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.LESSON);
 
+  // Password protection state
+  const [isCodeUnlocked, setIsCodeUnlocked] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+
   // Fallback if ID doesn't match new language structure (though ids are same)
   const currentLesson = allLessons.find(l => l.id === currentLessonId) || content.core[0];
 
@@ -29,7 +34,7 @@ const App: React.FC = () => {
     const currentIndex = allLessons.findIndex(l => l.id === currentLessonId);
     if (currentIndex < allLessons.length - 1) {
       setCurrentLessonId(allLessons[currentIndex + 1].id);
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -37,7 +42,7 @@ const App: React.FC = () => {
     const currentIndex = allLessons.findIndex(l => l.id === currentLessonId);
     if (currentIndex > 0) {
       setCurrentLessonId(allLessons[currentIndex - 1].id);
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -47,13 +52,12 @@ const App: React.FC = () => {
       onClick={() => {
         setCurrentLessonId(lesson.id);
         setViewMode(ViewMode.LESSON);
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
       }}
-      className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-3 ${
-        currentLessonId === lesson.id && viewMode === ViewMode.LESSON
-          ? 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-black text-black translate-y-[-2px]'
-          : 'text-zinc-600 hover:bg-zinc-200/50 hover:text-black'
-      }`}
+      className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-3 ${currentLessonId === lesson.id && viewMode === ViewMode.LESSON
+        ? 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-black text-black translate-y-[-2px]'
+        : 'text-zinc-600 hover:bg-zinc-200/50 hover:text-black'
+        }`}
     >
       <span className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] border ${currentLessonId === lesson.id && viewMode === ViewMode.LESSON ? 'border-black bg-black text-white' : 'border-zinc-300 bg-white'}`}>
         {lesson.number}
@@ -74,9 +78,9 @@ const App: React.FC = () => {
               </div>
               <span className="font-extrabold text-lg tracking-tight">PyFlap</span>
             </div>
-            
+
             {/* Language Toggle */}
-            <button 
+            <button
               onClick={() => setLang(l => l === 'en' ? 'de' : 'en')}
               className="flex items-center gap-1.5 px-2 py-1 rounded bg-white border border-zinc-200 text-xs font-bold hover:bg-zinc-100 transition-colors"
             >
@@ -86,7 +90,7 @@ const App: React.FC = () => {
           </div>
 
           <nav className="space-y-6">
-            
+
             {/* Core Section */}
             <div className="space-y-1">
               <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 pl-2">{ui.curriculum}</div>
@@ -101,34 +105,32 @@ const App: React.FC = () => {
 
             {/* Resources Section */}
             <div className="space-y-1">
-               <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 pl-2">{ui.resources}</div>
-                <button
-                   onClick={() => setViewMode(ViewMode.FULL_CODE)}
-                   className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-3 ${
-                      viewMode === ViewMode.FULL_CODE
-                        ? 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-black text-black translate-y-[-2px]'
-                        : 'text-zinc-600 hover:bg-zinc-200/50 hover:text-black'
-                    }`}
-                >
-                  <Code size={16} />
-                  {ui.fullCode}
-                </button>
-                
-                <button
-                   onClick={() => setViewMode(ViewMode.ASSETS)}
-                   className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-3 ${
-                      viewMode === ViewMode.ASSETS
-                        ? 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-black text-black translate-y-[-2px]'
-                        : 'text-zinc-600 hover:bg-zinc-200/50 hover:text-black'
-                    }`}
-                >
-                  <FolderOpen size={16} />
-                  {ui.assets}
-                </button>
+              <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 pl-2">{ui.resources}</div>
+              <button
+                onClick={() => setViewMode(ViewMode.FULL_CODE)}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-3 ${viewMode === ViewMode.FULL_CODE
+                  ? 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-black text-black translate-y-[-2px]'
+                  : 'text-zinc-600 hover:bg-zinc-200/50 hover:text-black'
+                  }`}
+              >
+                <Code size={16} />
+                {ui.fullCode}
+              </button>
+
+              <button
+                onClick={() => setViewMode(ViewMode.ASSETS)}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-3 ${viewMode === ViewMode.ASSETS
+                  ? 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-black text-black translate-y-[-2px]'
+                  : 'text-zinc-600 hover:bg-zinc-200/50 hover:text-black'
+                  }`}
+              >
+                <FolderOpen size={16} />
+                {ui.assets}
+              </button>
             </div>
           </nav>
         </div>
-        
+
         <div className="p-6 mt-auto">
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-800 leading-relaxed">
             <strong>{ui.tip}</strong> {ui.tipText}
@@ -141,10 +143,10 @@ const App: React.FC = () => {
         {viewMode === ViewMode.LESSON ? (
           <>
             <LessonView lesson={currentLesson} lang={lang} />
-            
+
             {/* Footer Navigation */}
             <div className="fixed bottom-0 left-0 md:left-72 right-0 bg-white/80 backdrop-blur-md border-t border-zinc-200 p-4 flex justify-between items-center z-50">
-              <button 
+              <button
                 onClick={handlePrev}
                 disabled={allLessons.findIndex(l => l.id === currentLessonId) === 0}
                 className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-black disabled:opacity-30 disabled:hover:text-zinc-600 transition-colors"
@@ -154,7 +156,7 @@ const App: React.FC = () => {
               <span className="text-xs text-zinc-400 font-mono hidden md:block">
                 {currentLesson.title}
               </span>
-              <button 
+              <button
                 onClick={handleNext}
                 disabled={allLessons.findIndex(l => l.id === currentLessonId) === allLessons.length - 1}
                 className="px-6 py-2 bg-black text-white text-sm font-bold rounded-full hover:bg-zinc-800 transition-transform active:scale-95 flex items-center gap-2 shadow-lg"
@@ -165,13 +167,56 @@ const App: React.FC = () => {
           </>
         ) : viewMode === ViewMode.FULL_CODE ? (
           <div className="max-w-3xl mx-auto animate-in fade-in duration-500">
-             <header className="mb-8 pb-6 border-b border-zinc-100">
-               <h1 className="text-3xl font-extrabold text-zinc-900 mb-2">{ui.fullCodeTitle}</h1>
-               <p className="text-zinc-600">{ui.fullCodeDesc}</p>
-             </header>
-             <div className="bg-zinc-950 rounded-xl border border-zinc-800 shadow-2xl overflow-hidden">
+            <header className="mb-8 pb-6 border-b border-zinc-100">
+              <h1 className="text-3xl font-extrabold text-zinc-900 mb-2">{ui.fullCodeTitle}</h1>
+              <p className="text-zinc-600">{ui.fullCodeDesc}</p>
+            </header>
+
+            {!isCodeUnlocked ? (
+              <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-8 flex flex-col items-center justify-center text-center space-y-4">
+                <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center text-white mb-2">
+                  <Terminal size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-900">Protected Content</h3>
+                <p className="text-sm text-zinc-500 max-w-md">
+                  Please enter the access password to view the full source code.
+                </p>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (passwordInput === 'kiberONESergio2025') {
+                      setIsCodeUnlocked(true);
+                      setPasswordError(false);
+                    } else {
+                      setPasswordError(true);
+                    }
+                  }}
+                  className="flex flex-col gap-3 w-full max-w-xs mt-4"
+                >
+                  <input
+                    type="password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    placeholder="Enter password..."
+                    className="w-full px-4 py-2 border border-zinc-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  />
+                  {passwordError && (
+                    <span className="text-red-500 text-xs font-medium">Incorrect password</span>
+                  )}
+                  <button
+                    type="submit"
+                    className="w-full bg-black text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-zinc-800 transition-colors"
+                  >
+                    Unlock Source Code
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="bg-zinc-950 rounded-xl border border-zinc-800 shadow-2xl overflow-hidden">
                 <CodeBlock code={FULL_CODE} />
-             </div>
+              </div>
+            )}
           </div>
         ) : (
           <AssetsView lang={lang} />
