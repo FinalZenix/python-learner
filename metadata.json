@@ -1,0 +1,5 @@
+{
+  "name": "PyFlap Curriculum",
+  "description": "An interactive, minimalist guide to building Flappy Bird with Python and pgzero.",
+  "requestFramePermissions": []
+}
