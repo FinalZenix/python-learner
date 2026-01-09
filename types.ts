@@ -5,6 +5,7 @@ export interface LessonStep {
   description: string;
   codeSnippet?: string;
   visualConcept?: 'gravity' | 'scrolling' | 'arrays' | 'collision' | 'animation' | 'states';
+  checkpoint?: string;
 }
 
 export interface Lesson {

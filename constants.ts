@@ -216,95 +216,65 @@ export const CONTENT: Record<Language, CourseContent> = {
       {
         id: 'l1',
         number: 1,
-        title: 'The Bird & Physics',
-        goal: 'Make a bird that falls and jumps.',
+        title: 'The Physics',
+        goal: 'A bird that falls and jumps. No scrolling yet.',
         concept: 'Gravity is just "speed going down". Jumping is just "speed going up".',
         steps: [
           {
-            title: 'Window Setup',
-            description: 'Start with the basics. Every game needs a window to draw on.',
-            codeSnippet: `import pgzrun\n\nTITLE = "Flappy Bird"\nWIDTH = 288\nHEIGHT = 512\n\npgzrun.go()`
+            title: 'Step 1: Setup',
+            description: 'Start with the configuration. We need a window size and a title.',
+            codeSnippet: `import pgzrun\n\n$$# --- Configuration ---\n$$TITLE = "Simple Bird"\n$$WIDTH = 288\n$$HEIGHT = 512\n\npgzrun.go()`
           },
           {
-            title: 'The Actor',
-            description: 'We need a character. In Pygame Zero, we call this an Actor.',
-            codeSnippet: `bird = Actor('yellowbird-midflap')\nbird.pos = (50, HEIGHT/2)\n\ndef draw():\n    screen.clear()\n    bird.draw()`
+            title: 'Step 2: The Actor',
+            description: 'We need to create the bird and background (Setup) and then make them appear (Draw).',
+            codeSnippet: `# --- Setup Actors ---\n$$bg = Actor('background-day', center=(WIDTH/2, HEIGHT/2))\n$$ground = Actor('base', anchor=('left', 'bottom'))\n$$ground.pos = (0, HEIGHT)\n\n$$bird = Actor('yellowbird-midflap', (50, HEIGHT/2))\n$$bird.vy = 0  # Vertical velocity\n\n$$def draw():\n$$    screen.clear()\n$$    bg.draw()\n$$    ground.draw()\n$$    bird.draw()`
           },
           {
-            title: 'Gravity Logic',
-            description: 'Gravity pulls things down. We simulate this by constantly adding to the vertical speed (vy).',
+            title: 'Step 3: Gravity',
+            description: 'Gravity is just adding speed to the Y position every frame.',
             visualConcept: 'gravity',
-            codeSnippet: `gravity = 0.25\nbird.vy = 0\n\ndef update():\n    bird.vy += gravity\n    bird.y += bird.vy`
+            checkpoint: 'Run the game. Does the bird fall to the bottom?',
+            codeSnippet: `# --- Constants ---\n$$GRAVITY = 0.25\n\ndef update():\n$$    # Apply Gravity\n$$    bird.vy += GRAVITY\n$$    bird.y += bird.vy`
           },
           {
-            title: 'Flapping',
-            description: 'When we press space, we reverse the velocity instantly to go up.',
-            codeSnippet: `def on_key_down(key):\n    if key == keys.SPACE:\n        bird.vy = -5.5`
+            title: 'Step 4: Jumping',
+            description: 'When we press SPACE, we set the speed upwards to fight gravity.',
+            checkpoint: 'Run the game. Can you keep the bird in the air?',
+            codeSnippet: `FLAP_FORCE = -5.5\n\n$$def on_key_down(key):\n$$    if key == keys.SPACE:\n$$        bird.vy = FLAP_FORCE`
           }
         ]
       },
       {
         id: 'l2',
         number: 2,
-        title: 'The World Moves',
-        goal: 'Create the illusion of flying forward.',
-        concept: 'The bird actually stays in the same X position. The world moves left!',
+        title: 'The Infinite World',
+        goal: 'Background moves, Ground loops, Pipes appear.',
+        concept: 'We don\'t move the bird forward. We move the world backward.',
         steps: [
           {
-            title: 'Background & Ground',
-            description: 'Add the background and ground actors. Order matters in draw()! Background first, ground last.',
-            codeSnippet: `bg = Actor('background-day')\nground = Actor('base')\nground.bottom = HEIGHT`
-          },
-          {
-            title: 'Infinite Scroll',
-            description: 'When the ground goes off-screen, reset it to the right. We need two ground pieces for this to look smooth.',
+            title: 'Step 1: The Ground Trick',
+            description: 'Use two pieces of ground. Moving them left makes it look like we are flying right.',
             visualConcept: 'scrolling',
-            codeSnippet: `def update_ground():\n    ground1.x -= 2\n    if ground1.right < 0:\n        ground1.left = ground2.right`
-          }
-        ]
-      },
-      {
-        id: 'l3',
-        number: 3,
-        title: 'The Pipes (Arrays)',
-        goal: 'Obstacles that appear and move.',
-        concept: 'We need many pipes, so we use a List [].',
-        steps: [
-          {
-            title: 'Pipe List',
-            description: 'Create an empty list to track all the active pipes.',
-            codeSnippet: `pipes = []`
+            checkpoint: 'Run the game. Does the floor move continuously without gaps?',
+            codeSnippet: `SPEED = 2\n\n# Change 'ground' to 'ground1'\n$$ground1 = Actor('base', anchor=('left', 'bottom'))\n$$ground1.pos = (0, HEIGHT)\n\n$$ground2 = Actor('base', anchor=('left', 'bottom'))\n$$ground2.pos = (ground1.width, HEIGHT)\n\ndef update():\n    # ... gravity code ...\n\n$$    # PART 1: Infinite Ground Scroll\n$$    ground1.x -= SPEED\n$$    ground2.x -= SPEED\n$$    \n$$    if ground1.right < 0:\n$$        ground1.left = ground2.right\n$$    if ground2.right < 0:\n$$        ground2.left = ground1.right`
           },
           {
-            title: 'Spawning Pairs',
-            description: 'We need a top pipe and a bottom pipe with a gap in between.',
-            visualConcept: 'arrays',
-            codeSnippet: `def create_pipe_pair():\n    gap_y = random.randint(150, 400)\n    top = Actor('pipe-green', anchor=('center','bottom'))\n    top.pos = (WIDTH, gap_y - 100)\n    pipes.append(top)`
+            title: 'Step 2: Values from the Future',
+            description: 'We need random numbers to make the pipe gaps different every time.',
+            codeSnippet: `import pgzrun\n$$import random`
           },
           {
-            title: 'Cleanup',
-            description: 'Important! Remove pipes when they leave the screen to keep the game fast.',
-            codeSnippet: `if pipes[0].right < 0:\n    pipes.pop(0)`
-          }
-        ]
-      },
-      {
-        id: 'l4',
-        number: 4,
-        title: 'Collision & Loops',
-        goal: 'Detect when the game ends.',
-        concept: 'Checking if rectangles overlap (Collision).',
-        steps: [
+            title: 'Step 3: Pipes',
+            description: 'Add pipes and make them move left. When they leave the screen, reset them to the right.',
+            codeSnippet: `# --- Setup Actors ---\n$$pipe_top = Actor('pipe-green', anchor=('center', 'bottom'))\n$$pipe_top.pos = (WIDTH + 100, 200)\n$$pipe_top.angle = 180\n\n$$pipe_bottom = Actor('pipe-green', anchor=('center', 'top'))\n$$pipe_bottom.pos = (WIDTH + 100, 300)\n\ndef draw():\n    screen.clear()\n    bg.draw()\n$$    pipe_top.draw()\n$$    pipe_bottom.draw()\n    ground1.draw()\n    ground2.draw()\n    bird.draw()\n\ndef update():\n    # ... ground code ... \n\n$$    # PART 2: Simple Pipe Loop\n$$    pipe_top.x -= SPEED\n$$    pipe_bottom.x -= SPEED\n$$    \n$$    if pipe_top.right < 0:\n$$        pipe_top.left = WIDTH\n$$        pipe_bottom.left = WIDTH\n\n$$        # PART 3: Adding Randomness\n$$        gap_y = random.randint(150, 350)\n$$        pipe_top.y = gap_y - 60\n$$        pipe_bottom.y = gap_y + 60`
+          },
           {
-            title: 'Collision Detection',
-            description: 'Check if the bird hits the pipes or the ground.',
+            title: 'Step 4: Game Over',
+            description: 'If the bird hits the pipes or the ground, the game ends.',
             visualConcept: 'collision',
-            codeSnippet: `if bird.colliderect(pipe):\n    dead = True\n    sounds.hit.play()`
-          },
-          {
-            title: 'Stop Everything',
-            description: 'When dead is True, stop the pipes from moving.',
-            codeSnippet: `if dead:\n    return # Stop updating`
+            checkpoint: 'Run. Do you die when hitting a pipe?',
+            codeSnippet: `$$game_active = True\n\ndef draw():\n    # ... code ...\n$$    if not game_active:\n$$        screen.draw.text("GAME OVER", center=(WIDTH/2, HEIGHT/2), fontsize=50, color="orange")\n\ndef update():\n$$    global game_active\n$$    if not game_active:\n$$        return\n\n    # ... (Movement Code) ...\n\n$$    # PART 4: Collision Logic\n$$    if bird.colliderect(pipe_top) or bird.colliderect(pipe_bottom):\n$$        game_active = False\n$$        \n$$    if bird.top < 0 or bird.bottom > HEIGHT - 50:\n$$        game_active = False`
           }
         ]
       }
@@ -359,9 +329,9 @@ export const CONTENT: Record<Language, CourseContent> = {
             codeSnippet: `if not game_active and not dead:\n    game_active = True  # Start\nelif game_active:\n    bird.vy = -5.5      # Flap\nelif dead:\n    reset_game()        # Neustart`
           },
           {
-             title: 'Scoring',
-             description: 'Add to the score when the bird passes a pipe.',
-             codeSnippet: `score += 1\nscreen.draw.text(str(score))`
+            title: 'Scoring',
+            description: 'Add to the score when the bird passes a pipe.',
+            codeSnippet: `score += 1\nscreen.draw.text(str(score))`
           }
         ]
       },
@@ -539,9 +509,9 @@ export const CONTENT: Record<Language, CourseContent> = {
             codeSnippet: `if not game_active and not dead:\n    game_active = True  # Start\nelif game_active:\n    bird.vy = -5.5      # Flattern\nelif dead:\n    reset_game()        # Neustart`
           },
           {
-             title: 'Punktestand',
-             description: 'Erhöhe den Score, wenn der Vogel eine Röhre passiert.',
-             codeSnippet: `score += 1\nscreen.draw.text(str(score))`
+            title: 'Punktestand',
+            description: 'Erhöhe den Score, wenn der Vogel eine Röhre passiert.',
+            codeSnippet: `score += 1\nscreen.draw.text(str(score))`
           }
         ]
       },

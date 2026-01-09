@@ -40,15 +40,25 @@ const LessonView: React.FC<LessonViewProps> = ({ lesson, lang }) => {
             <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-zinc-200 border-2 border-white"></div>
             <h2 className="text-xl font-bold text-zinc-800 mb-2">{step.title}</h2>
             <p className="text-zinc-600 mb-6 leading-relaxed">{step.description}</p>
-            
+
             {step.visualConcept === 'gravity' && <GravityViz lang={lang} />}
             {step.visualConcept === 'scrolling' && <ScrollingViz lang={lang} />}
             {step.visualConcept === 'arrays' && <ArrayViz lang={lang} />}
             {step.visualConcept === 'collision' && <CollisionViz lang={lang} />}
             {step.visualConcept === 'animation' && <AnimationViz lang={lang} />}
             {step.visualConcept === 'states' && <StateViz lang={lang} />}
-            
+
             {step.codeSnippet && <CodeBlock code={step.codeSnippet} />}
+
+            {step.checkpoint && (
+              <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-3">
+                <div className="mt-1 w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest block mb-1">Checkpoint</span>
+                  <p className="text-emerald-900 font-medium">{step.checkpoint}</p>
+                </div>
+              </div>
+            )}
           </section>
         ))}
       </div>

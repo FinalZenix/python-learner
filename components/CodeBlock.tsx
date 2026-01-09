@@ -16,7 +16,10 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code }) => {
 
   // Simple syntax highlighting based on keywords
   const highlightCode = (text: string) => {
-    return text.split('\n').map((line, i) => {
+    return text.split('\n').map((rawLine, i) => {
+      const isHighlighted = rawLine.startsWith('$$');
+      const line = isHighlighted ? rawLine.substring(2) : rawLine;
+
       // Very basic tokenizer for visual effect
       const parts = line.split(/(\s+|[(){}=[\],.])/g).map((part, index) => {
         if (['def', 'import', 'return', 'if', 'else', 'elif', 'for', 'while', 'global'].includes(part)) {
@@ -32,30 +35,40 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code }) => {
           return <span key={index} className="text-green-400">{part}</span>;
         }
         if (['Actor', 'Rect', 'pgzrun'].includes(part)) {
-           return <span key={index} className="text-yellow-300">{part}</span>;
+          return <span key={index} className="text-yellow-300">{part}</span>;
         }
         if (part.match(/^\d+$/) || part.match(/^\d+\.\d+$/)) {
-           return <span key={index} className="text-purple-400">{part}</span>;
+          return <span key={index} className="text-purple-400">{part}</span>;
         }
         // Comments
         if (part.startsWith('#')) {
-             return <span key={index} className="text-gray-500">{part}</span>;
+          return <span key={index} className="text-gray-500 italic">{part}</span>;
         }
         return <span key={index} className="text-zinc-100">{part}</span>;
       });
-      
-      // Handle comments that span rest of line
+
+      // Handle comments that span rest of line (simple heuristic)
+      let content = <>{parts}</>;
       const commentIndex = line.indexOf('#');
       if (commentIndex !== -1) {
-          return (
-            <div key={i} className="whitespace-pre">
-               <span className="text-zinc-100">{line.substring(0, commentIndex)}</span>
-               <span className="text-gray-500">{line.substring(commentIndex)}</span>
-            </div>
-          )
+        content = (
+          <div className="whitespace-pre">
+            <span className="text-zinc-100">{line.substring(0, commentIndex)}</span>
+            <span className="text-gray-500 italic">{line.substring(commentIndex)}</span>
+          </div>
+        )
+      } else {
+        content = <div className="whitespace-pre">{parts}</div>
       }
 
-      return <div key={i} className="whitespace-pre">{parts}</div>;
+      return (
+        <div
+          key={i}
+          className={`relative px-4 -mx-4 ${isHighlighted ? 'bg-indigo-500/20 border-l-2 border-indigo-400' : ''}`}
+        >
+          {content}
+        </div>
+      );
     });
   };
 
@@ -67,7 +80,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code }) => {
           <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
           <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
         </div>
-        <button 
+        <button
           onClick={handleCopy}
           className="text-zinc-400 hover:text-white transition-colors"
           title="Copy code"
